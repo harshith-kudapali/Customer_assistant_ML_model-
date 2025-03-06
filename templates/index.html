@@ -1,123 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Service Response Generator</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
-    <style>
-        /* Additional styling for customer service responses */
-        .response-container {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .greeting, .closing {
-            font-weight: bold;
-        }
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-family: inherit;
-            resize: vertical;
-        }
-        .scenario-tag {
-            display: inline-block;
-            background-color: #e9f5ff;
-            color: #0066cc;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-        }
-    </style>
+    <title>Customer Feedback Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/styles.css">
 </head>
+
 <body>
+    <button id="themeToggle" class="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
     <div class="container">
         <header>
-            <h1>Customer Service Response Generator</h1>
-            <p>Generate personalized responses to customer feedback</p>
+            <h1><i class="fas fa-comments-alt"></i> Customer Feedback Analyzer</h1>
+            <p>Intelligent sentiment analysis and personalized response generation</p>
         </header>
 
-        <div class="form-container">
-            <form id="responseForm">
+        <div class="card">
+            <form id="feedbackForm">
                 <div class="form-group">
-                    <label for="feedback">Customer Feedback:</label>
-                    <textarea id="feedback" name="feedback" required 
-                           placeholder="Paste customer feedback/issue here..."></textarea>
+                    <label for="feedback">
+                        <i class="fas fa-comment-dots"></i> Customer Feedback
+                    </label>
+
+                    <textarea id="feedback" name="feedback" rows="6" required
+                        placeholder="Paste the customer feedback here (email, review, chat, etc.)"></textarea>
+                    <!-- New Drop Zone for File Upload -->
+                    <div id="dropZone" class="drop-zone">
+                        <div class="drop-zone-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="drop-zone-prompt">Drag & drop a text file here or click to upload</div>
+                        <input type="file" id="fileInput" accept=".txt" style="display: none">
+                        <div id="fileInfo" class="file-info"></div>
+                    </div>
+
                 </div>
 
+                <div class="options-row">
+                    <div class="option-group">
+                        <label for="response_tone">
+                            <i class="fas fa-sliders-h"></i> Response Tone
+                        </label>
+                        <select id="response_tone" name="response_tone">
+                            <option value="empathetic" selected>Empathetic</option>
+                            <option value="professional">Professional</option>
+                            <option value="formal">Formal</option>
+                            <option value="friendly">Friendly</option>
+                            <option value="apologetic">Apologetic</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="model">
+                            <i class="fas fa-brain"></i> LLM Model
+                        </label>
+                        <select id="model" name="model">
+                            <!-- Will be populated from API -->
+                            <option value="gemma2:2b" selected>gemma2:2b</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="options-row">
+                    <div class="option-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="include_insights" name="include_insights" checked>
+                            <label for="include_insights">Include Detailed Insights</label>
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="generate_response" name="generate_response" checked>
+                            <label for="generate_response">Generate Response Draft</label>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label for="scenario">Feedback Type:</label>
-                    <select id="scenario" name="scenario">
-                        <option value="complaint" selected>Complaint/Problem</option>
-                        <option value="inquiry">General Inquiry</option>
-                        <option value="refund">Refund Request</option>
-                        <option value="praise">Positive Feedback</option>
-                        <option value="feature_request">Feature Request</option>
-                        <option value="technical_issue">Technical Issue</option>
-                    </select>
+                    <label for="insights"><i class="fas fa-lightbulb"></i> Additional Insights</label>
+                    <textarea id="insights" name="insights" rows="3"
+                        placeholder="Enter additional insights..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="tone">Response Tone:</label>
-                    <select id="tone" name="tone">
-                        <option value="professional" selected>Professional</option>
-                        <option value="empathetic">Empathetic</option>
-                        <option value="friendly">Friendly & Casual</option>
-                        <option value="apologetic">Apologetic</option>
-                        <option value="appreciative">Appreciative</option>
-                        <option value="formal">Formal</option>
-                    </select>
-                </div>
 
-                <div class="form-group checkbox">
-                    <input type="checkbox" id="include_followup" name="include_followup" checked>
-                    <label for="include_followup">Include Follow-up Plan & Resolution</label>
-                </div>
-
-                <div class="form-group">
-                    <label for="model">LLM Model:</label>
-                    <select id="model" name="model">
-                        <!-- Will be populated from API -->
-                        <option value="mistral" selected>mistral</option>
-                    </select>
-                </div>
-
-                <button type="submit" id="generateBtn">Generate Response</button>
+                <button type="submit" id="analyzeBtn" class="btn-primary">
+                    <i class="fas fa-search"></i> Analyze Feedback
+                </button>
             </form>
         </div>
 
-        <div class="results-container" id="resultsContainer" style="display: none;">
-            <h2>Generated Response</h2>
-            <div id="loading" style="display: none;">
+        <div class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <h2><i class="fas fa-chart-bar"></i> Analysis Results</h2>
+            </div>
+
+            <div id="loading" style="display: none;" class="loader">
                 <div class="spinner"></div>
-                <p>Generating response...</p>
+                <p>Analyzing feedback...</p>
             </div>
-            <div id="results" class="response-container">
-                <!-- Results will appear here -->
+
+            <div class="split-view">
+                <div class="results-section">
+                    <h3><i class="fas fa-heart-rate"></i> Sentiment Analysis</h3>
+                    <div id="analysis-results" class="results-panel"></div>
+                </div>
+
+                <div class="results-section response-section">
+                    <h3><i class="fas fa-reply"></i> Response Draft</h3>
+                    <div id="response-results" class="results-panel"></div>
+                    <div class="actions">
+                        <button id="copyResponseBtn" class="btn-secondary">
+                            <i class="fas fa-copy"></i> Copy Response
+                        </button>
+                        <!-- New download button -->
+                        <button id="downloadResponseBtn" class="btn-secondary">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <!-- New mailto button -->
+                        <button id="mailtoResponseBtn" class="btn-secondary">
+                            <i class="fas fa-envelope"></i> Email Response
+                        </button>
+                    </div>
+                </div>
             </div>
-            <button id="copyBtn">Copy to Clipboard</button>
-            <button id="editBtn">Edit Response</button>
+
+            <div class="actions">
+                <button id="copyAllBtn" class="btn-success">
+                    <i class="fas fa-clipboard"></i> Copy All Results
+                </button>
+            </div>
         </div>
     </div>
 
-    <script>
+     <script>
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const insights = document.getElementById('insights').value.trim();
+            if (insights) {
+                formData.append('insights', insights);
+            }
+
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            document.getElementById('analysis-results').innerHTML = data.sentiment_analysis;
+            document.getElementById('response-results').innerHTML = data.response_draft;
+        });
+
+        document.getElementById('downloadResponseBtn').addEventListener('click', () => {
+            const text = document.getElementById('response-results').innerText;
+            if (!text) return;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'response.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('mailtoResponseBtn').addEventListener('click', () => {
+            const text = document.getElementById('response-results').innerText;
+            if (!text) return;
+            window.location.href = `mailto:?subject=Customer Response&body=${encodeURIComponent(text)}`;
+        });
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const icon = themeToggle.querySelector('i');
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+
+        // File Drag & Drop functionality
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const feedbackTextarea = document.getElementById('feedback');
+
+        // Open file selector when clicking on drop zone
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and drop events
+        ['dragover', 'dragenter'].forEach(eventType => {
+            dropZone.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('active');
+            });
+        });
+
+        ['dragleave', 'dragend'].forEach(eventType => {
+            dropZone.addEventListener(eventType, (e) => {
+                dropZone.classList.remove('active');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                fileInput.files = files;
+                handleFileSelect(e);
+            }
+        });
+
+        // Function to handle file selection
+        function handleFileSelect(e) {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Check if it's a text file
+            if (!file.name.endsWith('.txt') && file.type !== 'text/plain') {
+                fileInfo.textContent = 'Error: Please upload a .txt file';
+                fileInfo.style.color = 'var(--error)';
+                return;
+            }
+
+            // Update file info
+            fileInfo.textContent = `File: ${file.name} (${formatFileSize(file.size)})`;
+            fileInfo.style.color = 'var(--text-light)';
+
+            // Read file contents
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                feedbackTextarea.value = event.target.result;
+            };
+            reader.onerror = function () {
+                fileInfo.textContent = 'Error reading file';
+                fileInfo.style.color = 'var(--error)';
+            };
+            reader.readAsText(file);
+        }
+
+        // Format file size in a human-readable way
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
         // Fetch available models when page loads
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const response = await fetch('/models');
                 const data = await response.json();
                 const modelSelect = document.getElementById('model');
-                
+
                 // Clear existing options
                 modelSelect.innerHTML = '';
-                
+
                 // Add each model as an option
                 data.models.forEach(model => {
                     const option = document.createElement('option');
@@ -125,112 +281,263 @@
                     option.textContent = model;
                     modelSelect.appendChild(option);
                 });
+
+                // Set default selection to first model
+                if (data.models.length > 0) {
+                    modelSelect.value = data.models[0];
+                }
             } catch (error) {
                 console.error('Error fetching models:', error);
             }
         });
 
         // Handle form submission
-        document.getElementById('responseForm').addEventListener('submit', async (e) => {
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(e.target);
             const resultsContainer = document.getElementById('resultsContainer');
             const loading = document.getElementById('loading');
-            const results = document.getElementById('results');
-            
+            const analysisResults = document.getElementById('analysis-results');
+            const responseResults = document.getElementById('response-results');
+
             // Show loading indicator
             resultsContainer.style.display = 'block';
-            loading.style.display = 'block';
-            results.innerHTML = '';
-            
+            loading.style.display = 'flex';
+            analysisResults.innerHTML = '';
+            responseResults.innerHTML = '';
+
             try {
-                const response = await fetch('/generate', {
+                const response = await fetch('/analyze', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 if (!response.ok) {
                     throw new Error(`Error: ${response.statusText}`);
                 }
-                
+
                 const data = await response.json();
-                
-                // Get the scenario and tone for display
-                const scenarioSelect = document.getElementById('scenario');
-                const scenarioText = scenarioSelect.options[scenarioSelect.selectedIndex].text;
-                
-                // Format and display the results with scenario tag
-                const scenarioTag = `<div class="scenario-tag">${scenarioText}</div>`;
-                results.innerHTML = scenarioTag + formatResponseWithMarkdown(data.generated_response);
-                
+
+                // Add sentiment badge based on overall sentiment
+                let sentimentClass = 'sentiment-neutral';
+                let sentimentText = 'Neutral';
+
+                if (data.sentiment_analysis.includes('positive')) {
+                    sentimentClass = 'sentiment-positive';
+                    sentimentText = 'Positive';
+                } else if (data.sentiment_analysis.includes('negative')) {
+                    sentimentClass = 'sentiment-negative';
+                    sentimentText = 'Negative';
+                } else if (data.sentiment_analysis.includes('mixed')) {
+                    sentimentClass = 'sentiment-mixed';
+                    sentimentText = 'Mixed';
+                }
+
+                analysisResults.innerHTML = `
+                    <div class="sentiment-badge ${sentimentClass}">${sentimentText}</div>
+                    ${formatResponseWithMarkdown(data.sentiment_analysis)}
+                `;
+
+                // Format and display the response draft if available
+                if (data.response_draft) {
+                    responseResults.innerHTML = formatResponseWithMarkdown(data.response_draft);
+                    document.querySelector('.response-section .actions').style.display = 'flex';
+                } else {
+                    responseResults.innerHTML = '<em>No response draft generated</em>';
+                    document.querySelector('.response-section .actions').style.display = 'none';
+                }
+
             } catch (error) {
-                results.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                analysisResults.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                responseResults.innerHTML = '';
             } finally {
                 loading.style.display = 'none';
             }
         });
-        
-        // Copy results to clipboard
-        document.getElementById('copyBtn').addEventListener('click', () => {
-            const results = document.getElementById('results').innerText;
-            navigator.clipboard.writeText(results)
+
+        // Copy response to clipboard
+        document.getElementById('copyResponseBtn').addEventListener('click', () => {
+            const results = document.getElementById('response-results').innerText;
+            copyToClipboard(results, 'copyResponseBtn', '<i class="fas fa-check"></i> Response Copied!');
+        });
+
+        // Download response as text file
+        document.getElementById('downloadResponseBtn').addEventListener('click', () => {
+            const responseText = document.getElementById('response-results').innerText;
+            if (!responseText) return;
+
+            const blob = new Blob([responseText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'customer_response.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            const button = document.getElementById('downloadResponseBtn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        });
+
+        // Email response with mailto link
+        document.getElementById('mailtoResponseBtn').addEventListener('click', () => {
+            const responseText = document.getElementById('response-results').innerText;
+            if (!responseText) return;
+
+            const subject = encodeURIComponent('Customer Support Response');
+            const body = encodeURIComponent(responseText);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+
+            const button = document.getElementById('mailtoResponseBtn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Email Opened!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        });
+
+        // Copy all results to clipboard
+        document.getElementById('copyAllBtn').addEventListener('click', () => {
+            const analysis = document.getElementById('analysis-results').innerText;
+            const response = document.getElementById('response-results').innerText;
+            const allResults = `SENTIMENT ANALYSIS:\n${analysis}\n\nRESPONSE DRAFT:\n${response}`;
+            copyToClipboard(allResults, 'copyAllBtn', '<i class="fas fa-check"></i> All Content Copied!');
+        });
+
+        // Helper function for clipboard operations
+        function copyToClipboard(text, buttonId, successMessage) {
+            navigator.clipboard.writeText(text)
                 .then(() => {
-                    const copyBtn = document.getElementById('copyBtn');
-                    copyBtn.textContent = 'Copied!';
+                    const button = document.getElementById(buttonId);
+                    const originalText = button.innerHTML;
+                    button.innerHTML = successMessage;
                     setTimeout(() => {
-                        copyBtn.textContent = 'Copy to Clipboard';
+                        button.innerHTML = originalText;
                     }, 2000);
                 })
                 .catch(err => {
                     console.error('Failed to copy: ', err);
                 });
+        }
+
+        // Toggle the response draft section based on checkbox
+        document.getElementById('generate_response').addEventListener('change', function () {
+            const responseSection = document.querySelector('.response-section');
+            if (this.checked) {
+                responseSection.style.display = 'block';
+            } else {
+                responseSection.style.display = 'none';
+            }
         });
-        
-        // Make response editable
-        document.getElementById('editBtn').addEventListener('click', () => {
-            const results = document.getElementById('results');
-            const currentHTML = results.innerHTML;
-            
-            // If already in edit mode, do nothing
-            if (results.querySelector('textarea')) return;
-            
-            // Create textarea with current content (strip HTML)
-            const textContent = results.innerText;
-            results.innerHTML = `<textarea id="editableResponse">${textContent}</textarea>
-                              <button id="saveEditBtn">Save Changes</button>`;
-            
-            // Handle saving edits
-            document.getElementById('saveEditBtn').addEventListener('click', () => {
-                const editedText = document.getElementById('editableResponse').value;
-                results.innerHTML = formatResponseWithMarkdown(editedText);
-            });
-        });
-        
-        // Simple function to format text with basic markdown
+
+        // Enhanced function to format text with markdown and styled elements
         function formatResponseWithMarkdown(text) {
+            if (!text) return '';
+
             // Handle line breaks
             let formatted = text.replace(/\n/g, '<br>');
-            
-            // Format greeting/salutation
-            formatted = formatted.replace(/^(Dear|Hello|Hi).*?(<br>|$)/, '<div class="greeting">$&</div>');
-            
-            // Format closing
-            formatted = formatted.replace(/(Sincerely|Best regards|Thank you|Regards).*$/i, '<div class="closing">$&</div>');
-            
-            // Format paragraphs
-            formatted = formatted.replace(/(<br>){2,}/g, '</p><p>');
-            formatted = '<p>' + formatted + '</p>';
-            formatted = formatted.replace(/<p><\/p>/g, '');
-            
-            // Bold text
+
+            // Format headings (# Title)
+            formatted = formatted.replace(/#{1,6}\s+(.*?)(?:<br>|$)/g, '<h4>$1</h4>');
+
+            // Format bold text
             formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // Italic text
+
+            // Format italic text
             formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
+
+            // Format list items with improved styling
+            formatted = formatted.replace(/(\d+\.\s+)(.*?)(?:<br>|$)/g, '<div class="list-item"><span class="list-number">$1</span>$2</div>');
+
+            // Format metrics (Key: Value) to make them look better
+            formatted = formatted.replace(/([A-Za-z\s]+):\s+([^<]+)(?:<br>|$)/g, '<div class="metric"><span class="metric-label">$1:</span><span class="metric-value">$2</span></div>');
+
+            // Format percentage values to highlight them
+            formatted = formatted.replace(/(\d+(?:\.\d+)?%)/g, '<span class="percentage">$1</span>');
+
             return formatted;
         }
-    </script>
+    </script> 
+    <!-- This is the key part of the JavaScript that handles form submission in index.html -->
+<script>
+    // Handle form submission
+    document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const insights = document.getElementById('insights').value.trim();
+        
+        // Always send insights value to the backend regardless of checkbox
+        // The backend will decide whether to include it in the response based on checkbox
+        formData.set('insights', insights);
+        
+        const resultsContainer = document.getElementById('resultsContainer');
+        const loading = document.getElementById('loading');
+        const analysisResults = document.getElementById('analysis-results');
+        const responseResults = document.getElementById('response-results');
+
+        // Show loading indicator
+        resultsContainer.style.display = 'block';
+        loading.style.display = 'flex';
+        analysisResults.innerHTML = '';
+        responseResults.innerHTML = '';
+
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            // Add sentiment badge based on overall sentiment
+            let sentimentClass = 'sentiment-neutral';
+            let sentimentText = 'Neutral';
+
+            if (data.sentiment_analysis.includes('positive')) {
+                sentimentClass = 'sentiment-positive';
+                sentimentText = 'Positive';
+            } else if (data.sentiment_analysis.includes('negative')) {
+                sentimentClass = 'sentiment-negative';
+                sentimentText = 'Negative';
+            } else if (data.sentiment_analysis.includes('mixed')) {
+                sentimentClass = 'sentiment-mixed';
+                sentimentText = 'Mixed';
+            }
+
+            analysisResults.innerHTML = `
+                <div class="sentiment-badge ${sentimentClass}">${sentimentText}</div>
+                ${formatResponseWithMarkdown(data.sentiment_analysis)}
+            `;
+
+            // Format and display the response draft if available
+            if (data.response_draft) {
+                responseResults.innerHTML = formatResponseWithMarkdown(data.response_draft);
+                document.querySelector('.response-section .actions').style.display = 'flex';
+            } else {
+                responseResults.innerHTML = '<em>No response draft generated</em>';
+                document.querySelector('.response-section .actions').style.display = 'none';
+            }
+
+        } catch (error) {
+            analysisResults.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            responseResults.innerHTML = '';
+        } finally {
+            loading.style.display = 'none';
+        }
+    });
+</script>
+
 </body>
+
 </html>

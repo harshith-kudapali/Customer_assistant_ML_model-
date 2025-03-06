@@ -1,22 +1,32 @@
-# prompt_templates.py
+# This file contains the prompt templates for the feedback analyzer
 
-BLOG_IDEA_PROMPT = """
-You are a creative content strategist specializing in generating engaging blog post ideas.
+SENTIMENT_ANALYSIS_PROMPT = """
+Perform sentiment analysis on the following customer feedback:
 
-I need {num_ideas} blog post ideas for a content creator in the {niche} niche. 
-The ideas should be {include_outline} and have a {tone} tone.
+CUSTOMER FEEDBACK:
+{feedback}
 
-For each idea:
-1. Provide a catchy, SEO-friendly title
-2. Write a brief description of the concept (2-3 sentences)
-3. If outlines are requested, include a 5-7 point outline with key sections
+Please provide a detailed analysis including:
+- Overall sentiment (positive, negative, or mixed)
+- Key pain points or concerns
+- Specific positive aspects mentioned
+- Emotion detection
+- Priority level for response
+"""
 
-Make sure the ideas are:
-- Trending and timely for current interests
-- Specific enough to be actionable
-- Designed to engage the target audience
-- Unique and not generic
+RESPONSE_GENERATION_PROMPT = """
+Generate a {tone} response to the customer feedback below.
 
-Format each idea clearly with numbers and proper spacing for readability.
-RESPOND ONLY WITH THE BLOG IDEAS AND NO OTHER TEXT.
+CUSTOMER FEEDBACK:
+{feedback}
+
+SENTIMENT ANALYSIS:
+{analysis}
+
+ADDITIONAL INSIGHTS TO INCORPORATE:
+{insights}
+
+Your response MUST directly address and quote the points mentioned in the ADDITIONAL INSIGHTS section.
+Create a {tone} response that acknowledges the customer's feedback and addresses their concerns.
+Make sure to explicitly reference the additional insights provided.
 """

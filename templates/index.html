@@ -136,11 +136,10 @@
             </div>
         </div>
     </div>
-
-     <script>
+    <script>
         document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
             const formData = new FormData(e.target);
             const insights = document.getElementById('insights').value.trim();
             if (insights) {
@@ -151,7 +150,7 @@
                 method: 'POST',
                 body: formData
             });
-
+            
             const data = await response.json();
             document.getElementById('analysis-results').innerHTML = data.sentiment_analysis;
             document.getElementById('response-results').innerHTML = data.response_draft;
@@ -178,7 +177,7 @@
         // Theme toggle functionality
         const themeToggle = document.getElementById('themeToggle');
         const icon = themeToggle.querySelector('i');
-
+        
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
             if (document.body.classList.contains('dark-mode')) {
@@ -189,21 +188,21 @@
                 icon.classList.add('fa-moon');
             }
         });
-
+        
         // File Drag & Drop functionality
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const fileInfo = document.getElementById('fileInfo');
         const feedbackTextarea = document.getElementById('feedback');
-
+        
         // Open file selector when clicking on drop zone
         dropZone.addEventListener('click', () => {
             fileInput.click();
         });
-
+        
         // Handle file selection
         fileInput.addEventListener('change', handleFileSelect);
-
+        
         // Drag and drop events
         ['dragover', 'dragenter'].forEach(eventType => {
             dropZone.addEventListener(eventType, (e) => {
@@ -217,11 +216,11 @@
                 dropZone.classList.remove('active');
             });
         });
-
+        
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('active');
-
+            
             const files = e.dataTransfer.files;
             if (files.length) {
                 fileInput.files = files;
@@ -233,18 +232,18 @@
         function handleFileSelect(e) {
             const file = fileInput.files[0];
             if (!file) return;
-
+            
             // Check if it's a text file
             if (!file.name.endsWith('.txt') && file.type !== 'text/plain') {
                 fileInfo.textContent = 'Error: Please upload a .txt file';
                 fileInfo.style.color = 'var(--error)';
                 return;
             }
-
+            
             // Update file info
             fileInfo.textContent = `File: ${file.name} (${formatFileSize(file.size)})`;
             fileInfo.style.color = 'var(--text-light)';
-
+            
             // Read file contents
             const reader = new FileReader();
             reader.onload = function (event) {
@@ -256,7 +255,7 @@
             };
             reader.readAsText(file);
         }
-
+        
         // Format file size in a human-readable way
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' bytes';
@@ -270,10 +269,10 @@
                 const response = await fetch('/models');
                 const data = await response.json();
                 const modelSelect = document.getElementById('model');
-
+                
                 // Clear existing options
                 modelSelect.innerHTML = '';
-
+                
                 // Add each model as an option
                 data.models.forEach(model => {
                     const option = document.createElement('option');
@@ -290,23 +289,23 @@
                 console.error('Error fetching models:', error);
             }
         });
-
+        
         // Handle form submission
         document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
             const formData = new FormData(e.target);
             const resultsContainer = document.getElementById('resultsContainer');
             const loading = document.getElementById('loading');
             const analysisResults = document.getElementById('analysis-results');
             const responseResults = document.getElementById('response-results');
-
+            
             // Show loading indicator
             resultsContainer.style.display = 'block';
             loading.style.display = 'flex';
             analysisResults.innerHTML = '';
             responseResults.innerHTML = '';
-
+            
             try {
                 const response = await fetch('/analyze', {
                     method: 'POST',
@@ -318,11 +317,11 @@
                 }
 
                 const data = await response.json();
-
+                
                 // Add sentiment badge based on overall sentiment
                 let sentimentClass = 'sentiment-neutral';
                 let sentimentText = 'Neutral';
-
+                
                 if (data.sentiment_analysis.includes('positive')) {
                     sentimentClass = 'sentiment-positive';
                     sentimentText = 'Positive';
@@ -333,10 +332,10 @@
                     sentimentClass = 'sentiment-mixed';
                     sentimentText = 'Mixed';
                 }
-
+                
                 analysisResults.innerHTML = `
-                    <div class="sentiment-badge ${sentimentClass}">${sentimentText}</div>
-                    ${formatResponseWithMarkdown(data.sentiment_analysis)}
+                <div class="sentiment-badge ${sentimentClass}">${sentimentText}</div>
+                ${formatResponseWithMarkdown(data.sentiment_analysis)}
                 `;
 
                 // Format and display the response draft if available
@@ -347,7 +346,7 @@
                     responseResults.innerHTML = '<em>No response draft generated</em>';
                     document.querySelector('.response-section .actions').style.display = 'none';
                 }
-
+                
             } catch (error) {
                 analysisResults.innerHTML = `<div class="error">Error: ${error.message}</div>`;
                 responseResults.innerHTML = '';
@@ -355,18 +354,18 @@
                 loading.style.display = 'none';
             }
         });
-
+        
         // Copy response to clipboard
         document.getElementById('copyResponseBtn').addEventListener('click', () => {
             const results = document.getElementById('response-results').innerText;
             copyToClipboard(results, 'copyResponseBtn', '<i class="fas fa-check"></i> Response Copied!');
         });
-
+        
         // Download response as text file
         document.getElementById('downloadResponseBtn').addEventListener('click', () => {
             const responseText = document.getElementById('response-results').innerText;
             if (!responseText) return;
-
+            
             const blob = new Blob([responseText], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -376,7 +375,7 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-
+            
             const button = document.getElementById('downloadResponseBtn');
             const originalText = button.innerHTML;
             button.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
@@ -384,16 +383,16 @@
                 button.innerHTML = originalText;
             }, 2000);
         });
-
+        
         // Email response with mailto link
         document.getElementById('mailtoResponseBtn').addEventListener('click', () => {
             const responseText = document.getElementById('response-results').innerText;
             if (!responseText) return;
-
+            
             const subject = encodeURIComponent('Customer Support Response');
             const body = encodeURIComponent(responseText);
             window.location.href = `mailto:?subject=${subject}&body=${body}`;
-
+            
             const button = document.getElementById('mailtoResponseBtn');
             const originalText = button.innerHTML;
             button.innerHTML = '<i class="fas fa-check"></i> Email Opened!';
@@ -401,7 +400,7 @@
                 button.innerHTML = originalText;
             }, 2000);
         });
-
+        
         // Copy all results to clipboard
         document.getElementById('copyAllBtn').addEventListener('click', () => {
             const analysis = document.getElementById('analysis-results').innerText;
@@ -409,23 +408,23 @@
             const allResults = `SENTIMENT ANALYSIS:\n${analysis}\n\nRESPONSE DRAFT:\n${response}`;
             copyToClipboard(allResults, 'copyAllBtn', '<i class="fas fa-check"></i> All Content Copied!');
         });
-
+        
         // Helper function for clipboard operations
         function copyToClipboard(text, buttonId, successMessage) {
             navigator.clipboard.writeText(text)
-                .then(() => {
-                    const button = document.getElementById(buttonId);
-                    const originalText = button.innerHTML;
-                    button.innerHTML = successMessage;
-                    setTimeout(() => {
-                        button.innerHTML = originalText;
-                    }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy: ', err);
-                });
+            .then(() => {
+                const button = document.getElementById(buttonId);
+                const originalText = button.innerHTML;
+                button.innerHTML = successMessage;
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+            });
         }
-
+        
         // Toggle the response draft section based on checkbox
         document.getElementById('generate_response').addEventListener('change', function () {
             const responseSection = document.querySelector('.response-section');
@@ -435,109 +434,145 @@
                 responseSection.style.display = 'none';
             }
         });
-
+        
         // Enhanced function to format text with markdown and styled elements
         function formatResponseWithMarkdown(text) {
             if (!text) return '';
-
+            
             // Handle line breaks
             let formatted = text.replace(/\n/g, '<br>');
-
+            
             // Format headings (# Title)
             formatted = formatted.replace(/#{1,6}\s+(.*?)(?:<br>|$)/g, '<h4>$1</h4>');
-
+            
             // Format bold text
             formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
+            
             // Format italic text
             formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-
+            
             // Format list items with improved styling
             formatted = formatted.replace(/(\d+\.\s+)(.*?)(?:<br>|$)/g, '<div class="list-item"><span class="list-number">$1</span>$2</div>');
-
+            
             // Format metrics (Key: Value) to make them look better
             formatted = formatted.replace(/([A-Za-z\s]+):\s+([^<]+)(?:<br>|$)/g, '<div class="metric"><span class="metric-label">$1:</span><span class="metric-value">$2</span></div>');
-
+            
             // Format percentage values to highlight them
             formatted = formatted.replace(/(\d+(?:\.\d+)?%)/g, '<span class="percentage">$1</span>');
-
+            
             return formatted;
         }
-    </script> 
+        </script> 
     <!-- This is the key part of the JavaScript that handles form submission in index.html -->
-<script>
-    // Handle form submission
-    document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(e.target);
-        const insights = document.getElementById('insights').value.trim();
-        
-        // Always send insights value to the backend regardless of checkbox
-        // The backend will decide whether to include it in the response based on checkbox
-        formData.set('insights', insights);
-        
-        const resultsContainer = document.getElementById('resultsContainer');
-        const loading = document.getElementById('loading');
-        const analysisResults = document.getElementById('analysis-results');
-        const responseResults = document.getElementById('response-results');
-
-        // Show loading indicator
-        resultsContainer.style.display = 'block';
-        loading.style.display = 'flex';
-        analysisResults.innerHTML = '';
-        responseResults.innerHTML = '';
-
-        try {
-            const response = await fetch('/analyze', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-
-            // Add sentiment badge based on overall sentiment
-            let sentimentClass = 'sentiment-neutral';
-            let sentimentText = 'Neutral';
-
-            if (data.sentiment_analysis.includes('positive')) {
-                sentimentClass = 'sentiment-positive';
-                sentimentText = 'Positive';
-            } else if (data.sentiment_analysis.includes('negative')) {
-                sentimentClass = 'sentiment-negative';
-                sentimentText = 'Negative';
-            } else if (data.sentiment_analysis.includes('mixed')) {
-                sentimentClass = 'sentiment-mixed';
-                sentimentText = 'Mixed';
-            }
-
-            analysisResults.innerHTML = `
+    <script>
+        // Handle form submission
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const insights = document.getElementById('insights').value.trim();
+            
+            // Always send insights value to the backend regardless of checkbox
+            // The backend will decide whether to include it in the response based on checkbox
+            formData.set('insights', insights);
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            const loading = document.getElementById('loading');
+            const analysisResults = document.getElementById('analysis-results');
+            const responseResults = document.getElementById('response-results');
+            
+            // Show loading indicator
+            resultsContainer.style.display = 'block';
+            loading.style.display = 'flex';
+            analysisResults.innerHTML = '';
+            responseResults.innerHTML = '';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Add sentiment badge based on overall sentiment
+                let sentimentClass = 'sentiment-neutral';
+                let sentimentText = 'Neutral';
+                
+                if (data.sentiment_analysis.includes('positive')) {
+                    sentimentClass = 'sentiment-positive';
+                    sentimentText = 'Positive';
+                } else if (data.sentiment_analysis.includes('negative')) {
+                    sentimentClass = 'sentiment-negative';
+                    sentimentText = 'Negative';
+                } else if (data.sentiment_analysis.includes('mixed')) {
+                    sentimentClass = 'sentiment-mixed';
+                    sentimentText = 'Mixed';
+                }
+                
+                analysisResults.innerHTML = `
                 <div class="sentiment-badge ${sentimentClass}">${sentimentText}</div>
                 ${formatResponseWithMarkdown(data.sentiment_analysis)}
-            `;
-
-            // Format and display the response draft if available
-            if (data.response_draft) {
-                responseResults.innerHTML = formatResponseWithMarkdown(data.response_draft);
-                document.querySelector('.response-section .actions').style.display = 'flex';
-            } else {
-                responseResults.innerHTML = '<em>No response draft generated</em>';
-                document.querySelector('.response-section .actions').style.display = 'none';
-            }
-
-        } catch (error) {
-            analysisResults.innerHTML = `<div class="error">Error: ${error.message}</div>`;
-            responseResults.innerHTML = '';
+                `;
+                
+                // Format and display the response draft if available
+                if (data.response_draft) {
+                    responseResults.innerHTML = formatResponseWithMarkdown(data.response_draft);
+                    document.querySelector('.response-section .actions').style.display = 'flex';
+                } else {
+                    responseResults.innerHTML = '<em>No response draft generated</em>';
+                    document.querySelector('.response-section .actions').style.display = 'none';
+                }
+                
+            } catch (error) {
+                analysisResults.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                responseResults.innerHTML = '';
         } finally {
             loading.style.display = 'none';
         }
     });
-</script>
+    </script>
 
+<footer style="background-color: var(--primary-dark); color: white; padding: 3rem 2rem; margin-top: 4rem; border-top: 1px solid var(--border);">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.5rem;">
+                <img src="../static/public/NIE_University.png" alt="Project Image 1" style="width: 70px; height: auto; object-fit: contain; border-radius: 8px; box-shadow: var(--shadow); transition: all 0.2s ease-in-out;">
+                <img src="../static/public/IVIS_logo.png" alt="Project Image 2" style="width: 70px; height: auto; object-fit: contain; border-radius: 8px; box-shadow: var(--shadow); transition: all 0.2s ease-in-out;">
+                <img src="../static/public/PULSE LOGO.png" alt="Project Image 3" style="width: 70px; height: auto; object-fit: contain; border-radius: 8px; box-shadow: var(--shadow); transition: all 0.2s ease-in-out;">
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: white;">Project Name</h3>
+                <p style="margin-bottom: 0.75rem; line-height: 1.6; color: rgba(255, 255, 255, 0.9);">Brief description of your project. Explain what it does and its main features.</p>
+                <p style="margin-bottom: 0.75rem; line-height: 1.6; color: rgba(255, 255, 255, 0.9);">Additional information about the project, technology used, or its purpose.</p>
+            </div>
+        </div>
+        
+        <div>
+            <div style="margin-bottom: 2rem;">
+                <h4 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: white;">Contact Us</h4>
+                <p style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">Email: project@example.com</p>
+                <p style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">Phone: (123) 456-7890</p>
+                <p style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">Address: 123 Project St, City, Country</p>
+            </div>
+            
+            <div style="display: flex; gap: 1.5rem; margin-top: 1rem;">
+                <a href="#" style="color: white; text-decoration: none; transition: all 0.2s ease-in-out; display: flex; align-items: center; gap: 0.25rem;">Documentation</a>
+                <a href="#" style="color: white; text-decoration: none; transition: all 0.2s ease-in-out; display: flex; align-items: center; gap: 0.25rem;">GitHub</a>
+                <a href="#" style="color: white; text-decoration: none; transition: all 0.2s ease-in-out; display: flex; align-items: center; gap: 0.25rem;">Support</a>
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">
+        <p>© 2025 Project Name. All rights reserved.</p>
+    </div>
+</footer>
 </body>
 
 </html>
